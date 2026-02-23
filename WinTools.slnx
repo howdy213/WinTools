@@ -1,0 +1,31 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="deps/WinUtils/WinUtils.vcxproj" Id="dff34332-c7db-4db1-b464-1d2313a45af0" />
+  <Project Path="src/AutoStartService/AutoStartService.vcxproj" Id="86c4b5b0-7f43-4963-9992-aff6058b6a47">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/Flake/Flake.vcxproj" Id="7d4cbe75-aa14-4dc0-beaf-83d9a1d3fe7a">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/HotspotHelper/HotspotHelper.vcxproj" Id="e13d479b-fd54-42e4-8f98-3ceefff9c574">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/Launcher/Launcher.vcxproj" Id="c5455ce1-6178-4c99-b7fe-61665b0af40a">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/LightPanel/LightPanel.vcxproj" Id="5b2db5f5-5e5a-4aee-aea2-a1ada5428a34">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/ShutdownEx/ShutdownEx.vcxproj" Id="fec38b84-a39b-4b50-8f1e-72889405796d">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/TaskManager/TaskManager.vcxproj" Id="770e0c87-2490-48aa-b1f3-ae0face2d4bc">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+  <Project Path="src/TopmostTray/TopmostTray.vcxproj" Id="d8075902-4cbf-4293-be00-88f714d46e18">
+    <BuildDependency Project="deps/WinUtils/WinUtils.vcxproj" />
+  </Project>
+</Solution>
