@@ -6,6 +6,7 @@
 #include <WinUtils/Console.h>
 #include <WinUtils/CmdParser.h>
 #include <WinUtils/StrConvert.h>
+#pragma comment(lib, "WindowsApp.lib")
 using namespace WinUtils;
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
 	Console console;

@@ -174,10 +174,6 @@
     <ResourceCompile Include="LightPanel.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="LightPanel.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Manifest Include="LightPanel.exe.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
