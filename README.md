@@ -6,7 +6,7 @@
 
 ## 包含项目
 
-* [AutoStartService](docs/Launcher.md) 自启服务
+* [AutoStartService](docs/AutoStartService.md) 自启服务
 * [Flake](docs/Flake.md) 模拟息屏
 * [HotspotHelper](docs/HotspotHelper.md) 热点管理器
 * [Launcher](docs/Launcher.md) 程序启动器
@@ -25,4 +25,10 @@ Visual Studio 2022
 ## 许可证
 
 本项目采用 GPLv3 许可证，详情参见 [LICENSE](LICENSE) 文件
+
+WinUtils:  [MIT 许可证](licenses/LICENSE-WinUtils)
+
+mINI: [MIT 许可证](licenses/LICENSE-mINI)
+
+WinReg: [MIT 许可证](licenses/LICENSE-WinReg)
 

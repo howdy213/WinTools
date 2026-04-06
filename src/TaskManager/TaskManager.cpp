@@ -16,7 +16,12 @@ using namespace WinUtils;
 
 struct TimedTask {
     wstring name;
-    int hour = 0, minute = 0, second = 0;
+    // 精确时间点模式
+    bool useExactTime = true;      // true=精确时间点 false=时间段
+    int hour = 0, minute = 0, second = 0;  // 精确时间点
+    // 时间段模式
+    int startHour = 0, startMinute = 0, startSecond = 0;
+    int endHour = 0, endMinute = 0, endSecond = 0;
     LaunchItem launch;
 };
 
@@ -52,11 +57,38 @@ static vector<TimedTask> ReadTasks(const wstring& path) {
 
         TimedTask task;
         task.name = sectionName;
-        wstring timeStr = kvMap.get(L"Time");
-        if (!ParseTime(timeStr, task.hour, task.minute, task.second)) {
-            wcout << L"跳过 [" << sectionName << L"]：时间格式无效" << endl;
-            continue;
+
+        // 检查是否配置为时间段模式（StartTime 和 EndTime 同时存在）
+        wstring startTimeStr = kvMap.get(L"StartTime");
+        wstring endTimeStr = kvMap.get(L"EndTime");
+        bool hasRange = !startTimeStr.empty() && !endTimeStr.empty();
+
+        if (hasRange) {
+            // 时间段模式
+            if (!ParseTime(startTimeStr, task.startHour, task.startMinute, task.startSecond) ||
+                !ParseTime(endTimeStr, task.endHour, task.endMinute, task.endSecond)) {
+                wcout << L"跳过 [" << sectionName << L"]：StartTime/EndTime 格式无效" << endl;
+                continue;
+            }
+            // 简单校验：不允许跨天（开始时间 <= 结束时间）
+            int startSec = task.startHour * 3600 + task.startMinute * 60 + task.startSecond;
+            int endSec = task.endHour * 3600 + task.endMinute * 60 + task.endSecond;
+            if (startSec > endSec) {
+                wcout << L"跳过 [" << sectionName << L"]：时间段不支持跨天（StartTime 必须早于 EndTime）" << endl;
+                continue;
+            }
+            task.useExactTime = false;
         }
+        else {
+            // 精确时间点模式
+            wstring timeStr = kvMap.get(L"Time");
+            if (!ParseTime(timeStr, task.hour, task.minute, task.second)) {
+                wcout << L"跳过 [" << sectionName << L"]：时间格式无效" << endl;
+                continue;
+            }
+            task.useExactTime = true;
+        }
+
         task.launch.program = kvMap.get(L"Program");
         if (task.launch.program.empty()) {
             wcout << L"跳过 [" << sectionName << L"]：缺少 Program 字段" << endl;
@@ -64,7 +96,7 @@ static vector<TimedTask> ReadTasks(const wstring& path) {
         }
         task.launch.params = kvMap.get(L"Params");
         task.launch.workDir = kvMap.get(L"WorkDir");
-        task.launch.runAsAdmin = kvMap.get_as<bool>(L"RunAsAdmin",0);
+        task.launch.runAsAdmin = kvMap.get_as<bool>(L"RunAsAdmin", 0);
         task.launch.showWnd = kvMap.get_as<int>(L"ShowWnd", SW_NORMAL);
 
         tasks.push_back(move(task));
@@ -72,7 +104,7 @@ static vector<TimedTask> ReadTasks(const wstring& path) {
     return tasks;
 }
 
-// 创建示例配置文件（与原实现一致）
+// 创建示例配置文件（包含精确时间点和时间段示例）
 static void CreateSampleIni(const wstring& path) {
     FILE* f = nullptr;
     if (_wfopen_s(&f, path.c_str(), L"w, ccs=UTF-8") == 0 && f) {
@@ -91,15 +123,17 @@ static void CreateSampleIni(const wstring& path) {
             L"RunAsAdmin=1\n"
             L"ShowWnd=6\n"
             L"\n"
-            L"[Task3]\n"
-            L"Time=18:00:00\n"
+            L"[WorkHours]\n"
+            L"StartTime=09:00:00\n"
+            L"EndTime=17:00:00\n"
             L"Program=C:\\Tools\\report.exe\n"
             L"Params=-auto\n"
             L"WorkDir=C:\\Reports\n"
             L"ShowWnd=7\n"
             L"\n"
-            L"[Task4]\n"
-            L"Time=22:00:00\n"
+            L"[Cleanup]\n"
+            L"StartTime=22:00:00\n"
+            L"EndTime=23:00:00\n"
             L"Program=..\\scripts\\cleanup.cmd\n"
             L"Params=/silent\n"
             L"RunAsAdmin=0\n"
@@ -109,13 +143,26 @@ static void CreateSampleIni(const wstring& path) {
     }
 }
 
-// 判断当前时间是否接近任务设定时间（误差≤3秒）
+// 判断当前时间是否在时间段内（不跨天）
+static bool IsInTimeRange(const SYSTEMTIME& now, const TimedTask& task) {
+    int nowSec = now.wHour * 3600 + now.wMinute * 60 + now.wSecond;
+    int startSec = task.startHour * 3600 + task.startMinute * 60 + task.startSecond;
+    int endSec = task.endHour * 3600 + task.endMinute * 60 + task.endSecond;
+    return (nowSec >= startSec && nowSec <= endSec);
+}
+
+// 判断当前时间是否满足触发条件（精确点或时间段）
 static bool IsTimeToExecute(const TimedTask& task, const SYSTEMTIME& now) {
-    int taskTotal = task.hour * 3600 + task.minute * 60 + task.second;
-    int nowTotal = now.wHour * 3600 + now.wMinute * 60 + now.wSecond;
-    int diff = abs(taskTotal - nowTotal);
-    diff = min(diff, 86400 - diff);
-    return diff <= 3;
+    if (task.useExactTime) {
+        int taskTotal = task.hour * 3600 + task.minute * 60 + task.second;
+        int nowTotal = now.wHour * 3600 + now.wMinute * 60 + now.wSecond;
+        int diff = abs(taskTotal - nowTotal);
+        diff = min(diff, 86400 - diff);
+        return diff <= 3;
+    }
+    else {
+        return IsInTimeRange(now, task);
+    }
 }
 
 // 获取文件最后写入时间
@@ -161,7 +208,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         SYSTEMTIME st;
         GetLocalTime(&st);
 
-        // 跨天重置执行标记
+        // 跨天重置执行标记（每天0点后5秒内重置）
         if (st.wHour == 0 && st.wMinute == 0 && st.wSecond < 5)
             fill(executed.begin(), executed.end(), 0);
 

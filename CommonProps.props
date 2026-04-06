@@ -9,7 +9,7 @@
       <AdditionalDependencies>WinUtils.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps/WinUtils/include</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
