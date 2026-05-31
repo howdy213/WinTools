@@ -1,3 +1,5 @@
+#include <WinUtils/WinPch.h>
+
 #include "SessionUtils.h"
 #include <windows.h>
 #include <userenv.h>

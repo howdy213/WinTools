@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConfigHelper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ServiceUtils.cpp" />
     <ClCompile Include="SessionUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="ConfigHelper.h" />
     <ClInclude Include="ServiceUtils.h" />
     <ClInclude Include="SessionUtils.h" />
   </ItemGroup>

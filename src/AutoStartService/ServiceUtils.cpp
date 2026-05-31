@@ -1,12 +1,17 @@
+#include <WinUtils/WinPch.h>
+
 #include "ServiceUtils.h"
 #include "SessionUtils.h"
 #include <filesystem>
-#include "common.h"
+#include "Common.h"
+#include "ConfigHelper.h"
 #include <WinUtils/WinUtils.h>
 #include <WinUtils/INI.h>
 #include <iostream>
+
 using namespace WinUtils;
 using namespace std;
+
 bool keepRunning = false;
 
 namespace {
@@ -39,7 +44,7 @@ static LaunchItem ReadLaunchItemFromIni(const std::wstring& iniPath) {
 }
 
 DWORD WINAPI ServiceWorkerThread(LPVOID) {
-	std::wstring configPath = WinUtils::GetCurrentProcessDir() + CONFIG_FILE_NAME;
+	std::wstring configPath = GetConfigFilePath();
 	LaunchItem item = ReadLaunchItemFromIni(configPath);
 
 	if (item.program.empty()) {
@@ -98,7 +103,10 @@ void WINAPI ServiceCtrlHandler(DWORD ctrlCode) {
 }
 
 void WINAPI ServiceMain(DWORD, LPWSTR*) {
-	g_statusHandle = RegisterServiceCtrlHandlerW(SERVICE_NAME, ServiceCtrlHandler);
+	// 获取动态服务名（必须与分发表中的名称完全一致）
+	std::wstring serviceName = GetConfiguredServiceName();
+
+	g_statusHandle = RegisterServiceCtrlHandlerW(serviceName.c_str(), ServiceCtrlHandler);
 	if (!g_statusHandle) return;
 
 	g_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
