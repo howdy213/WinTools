@@ -1,5 +1,6 @@
 ﻿// HotspotHelper.cpp
 #include "pch.h"
+#include "WinUtils/WinPch.h"
 
 #include <windows.h>
 #include <winrt/Windows.Foundation.h>
@@ -65,7 +66,7 @@ void PrintError(std::wstring_view context, const winrt::hresult_error& e) {
 }
 
 void PrintError(std::wstring_view context, const std::exception& e) {
-	PrintError(context, AnsiToWideString(e.what()));
+	PrintError(context, AnsiToWide(e.what()));
 }
 
 

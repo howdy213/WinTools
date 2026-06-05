@@ -180,7 +180,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     console.attach();
     console.setLocale();
 
-    EnsureSingleInstance();
+    EnsureSingleInstance(false);
 
     wstring iniPath = lpCmdLine;
     if (iniPath.empty())

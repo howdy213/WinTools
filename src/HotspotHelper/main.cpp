@@ -16,8 +16,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
 	(void)parser.parse(lpCmdLine);
 
 	try {
-		if (parser.hasCommand(L"-start")) {
-			auto args = parser.result()[L"-start"];
+		if (parser.hasCommand(L"start")) {
+			auto args = parser.result()[L"start"];
 			if (args.size() == 2) {
 				EasyStart(
 					CmdParser::removeQuotation(args[0]),
@@ -26,14 +26,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int) {
 			}
 			else EasyStart();
 		}
-		else if (parser.hasCommand(L"-stop")) StopHotspot();
+		else if (parser.hasCommand(L"stop")) StopHotspot();
 		else {
 			HotspotDialog dlg(hInstance);
 			return dlg.DoModal();
 		}
 	}
 	catch (const std::exception& e) {
-		std::wcerr << L"Unhandled exception: " << AnsiToWideString(e.what()) << std::endl;
+		std::wcerr << L"Unhandled exception: " << AnsiToWide(e.what()) << std::endl;
 		return 1;
 	}
 	catch (const winrt::hresult_error& e) {

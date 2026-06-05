@@ -1,4 +1,6 @@
-﻿#include <windows.h>
+﻿#include "WinUtils/WinPch.h"
+
+#include <windows.h>
 #include <vector>
 #include <chrono>
 #include "WinUtils/WinUtils.h"
@@ -83,7 +85,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	EnsureSingleInstance();
+	EnsureSingleInstance(true);
 	if (!CreateFullscreenWindow(hInstance))
 		return 1;
 
