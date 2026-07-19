@@ -102,6 +102,34 @@ void WINAPI ServiceCtrlHandler(DWORD ctrlCode) {
 	}
 }
 
+std::wstring GetServiceBinaryPath(const std::wstring& serviceName) {
+	// 打开服务管理器（只需 CONNECT 权限）
+	UniqueScHandle scm(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
+	if (!scm) {
+		return L"";
+	}
+
+	// 打开服务（查询配置权限）
+	UniqueScHandle svc(OpenServiceW(scm.get(), serviceName.c_str(), SERVICE_QUERY_CONFIG));
+	if (!svc) {
+		return L"";   // 服务不存在
+	}
+	DWORD bytesNeeded = 0;
+	if (!QueryServiceConfigW(svc.get(), nullptr, 0, &bytesNeeded) &&
+		GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+		return L"";
+	}
+	std::vector<BYTE> buffer(bytesNeeded);
+	LPQUERY_SERVICE_CONFIGW pConfig = reinterpret_cast<LPQUERY_SERVICE_CONFIGW>(buffer.data());
+	if (!QueryServiceConfigW(svc.get(), pConfig, bytesNeeded, &bytesNeeded)) {
+		return L"";
+	}
+	if (pConfig->lpBinaryPathName && wcslen(pConfig->lpBinaryPathName) > 0) {
+		return std::wstring(pConfig->lpBinaryPathName);
+	}
+	return L"";
+}
+
 void WINAPI ServiceMain(DWORD, LPWSTR*) {
 	// 获取动态服务名（必须与分发表中的名称完全一致）
 	std::wstring serviceName = GetConfiguredServiceName();

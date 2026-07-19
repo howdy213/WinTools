@@ -31,14 +31,6 @@ static void CreateSampleIni(const wstring& path) {
     }
 }
 
-// 检查服务是否已安装
-static bool IsServiceInstalled(const std::wstring& serviceName) {
-    UniqueScHandle scm(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
-    if (!scm) return false;
-    UniqueScHandle svc(OpenServiceW(scm.get(), serviceName.c_str(), SERVICE_QUERY_STATUS));
-    return svc != nullptr;
-}
-
 // 设置服务描述（在安装成功后调用）
 static bool SetServiceDescription(const std::wstring& serviceName, const std::wstring& description) {
     if (description.empty()) return true;
@@ -105,9 +97,15 @@ int wmain(int argc, wchar_t* argv[]) {
         }
 
         if (arg == L"/query") {
-            bool installed = IsServiceInstalled(serviceName);
-            wcout << (installed ? 1 : 0) << endl;
-            return installed ? 1 : 0;
+            std::wstring path = GetServiceBinaryPath(serviceName);
+            if (path.empty()) {
+                wcout << L"" << endl;
+                return 0;
+            }
+            else {
+                wcout << path << endl;
+                return 1;
+            }
         }
 
         wcout << L"无效参数！支持：/install 或 /uninstall 或 /query\n";
